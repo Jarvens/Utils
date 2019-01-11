@@ -6,6 +6,7 @@ package utils
 import (
 	"crypto/md5"
 	"hash/crc32"
+	"io"
 )
 
 const (
@@ -13,8 +14,17 @@ const (
 )
 
 // CRC32 哈希 入参为字节数组
+// 该方法 在创建默认协议体时，平均10000000次调用 耗时 150ns/op
 func Crc32(bytes []byte) uint32 {
 	return crc32.ChecksumIEEE(bytes)
+}
+
+// 该方法在创建默认协议体时，平均10000000次调用 耗时 220~225ns/op
+func Crc32String(message string) uint32 {
+	ieee := crc32.NewIEEE()
+	io.WriteString(ieee, message)
+	val := ieee.Sum32()
+	return val
 }
 
 // CRC32 哈希校验
